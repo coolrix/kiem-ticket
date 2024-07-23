@@ -16,16 +16,16 @@ Laravel is accessible, powerful, and provides tools required for large, robust a
 
 ## De opdracht
 
-Doel van de opdracht
+### Doel van de opdracht
 - Demonstreren van je kennis van PHP en het Laravel framework.
 - Evalueren van je begrip van MVC-architectuur en best practices in webontwikkeling.
 - Testen van je vermogen om functionele en schaalbare webapplicaties te ontwikkelen.
-- Opdracht
-    - Maak een nieuwe Laravel-applicatie met een formulier waarmee klanten de volgende informatie
-    - kunnen invoeren:
-        1. Naam van de klant
-        2. E-mailadres van de klant
-        3. Kassaticket (bestand om te uploaden > alleen png, jpg, pdf)
+### Opdracht
+- Maak een nieuwe Laravel-applicatie met een formulier waarmee klanten de volgende informatie
+- kunnen invoeren:
+  1. Naam van de klant
+  2. E-mailadres van de klant
+  3. Kassaticket (bestand om te uploaden > alleen png, jpg, pdf)
 - Implementeer een backend-functie om het formulier te verwerken en de geüploade kassatickets
 veilig op te slaan. Zorg ervoor dat er een unieke bestandsnaam wordt gegenereerd.
 - Voer validaties uit om ervoor te zorgen dat het formulier correct is ingevuld. Controleer

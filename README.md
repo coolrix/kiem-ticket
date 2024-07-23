@@ -53,4 +53,4 @@ bla bla
 
 ## Contacteer Mij
 
-- **[Rik Dessers](https://www.coolrix.be/)**
+- **[Rik Dessers](mailto:rik@rikdessers.be)**

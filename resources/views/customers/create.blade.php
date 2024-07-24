@@ -1,3 +1,9 @@
+<x-app-layout>
+<x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Add a new ticket') }}
+        </h2>
+    </x-slot>
 <form method="POST" action="{{ route('customers.store') }}">
     @csrf
 
@@ -12,3 +18,4 @@
     </div>
     <button type="submit" class="btn btn-primary">Create Customer</button>
 </form>
+</x-app-layout>

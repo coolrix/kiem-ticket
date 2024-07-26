@@ -7,9 +7,15 @@ use App\Models\Customer;
 
 class CustomerController extends Controller
 {
+    private $cust;
+
+    public function __construct()
+    {
+        $this->cust = new Customer();
+    }
     public function index()
     {
-        $customers = Customer::getCustomers();
+        $customers = $this->cust->getCustomers();
         return view('customers.index', compact('customers'));
     }
 
@@ -19,21 +25,26 @@ class CustomerController extends Controller
     }
 
     public function store(Request $request)
-{
-    // Validate the form data
-    $validatedData = $request->validate([
-        'name' => 'required',
-        'email' => 'required|email',
-        'phone' => 'required',
-        // Add more validation rules as needed
-    ]);
+    {
+        // Validate the form data
+        $validatedData = $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'image' => 'required|file|mimes:png,jpg,pdf|max:2048'
+        ]);
 
-    // Create a new customer record
-    $customer = Customer::createCustomer($validatedData);
+        unset($validatedData['image']);
+        
+        $customer = $this->cust->createCustomer($validatedData);
 
-    // Redirect to the index page with a success message
-    return redirect()
-        ->route('customers.create')
-        ->with('success', 'Ticket created successfully. Add another one');
-}
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $filename = $customer->id . '.' . $image->getClientOriginalExtension();
+            $image->move(public_path('uploads'), $filename);
+        }
+
+        return redirect()
+            ->route('customers.create')
+            ->with('success', 'Ticket created successfully. Add another one');
+    }
 }

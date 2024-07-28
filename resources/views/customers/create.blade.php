@@ -24,23 +24,23 @@
 
     <div class="form-group">
         <label for="name">Name:</label>
-        <input type="text" class="form-control" id="name" name="name" required>
+        <input type="text" class="form-control input-width-40" id="name" name="name" required>
     </div>
 
     <div class="form-group">
         <label for="email">Email:</label>
-        <input type="email" class="form-control" id="email" name="email" required>
+        <input type="email" class="form-control input-width-40" id="email" name="email" required>
     </div>
 
     <div class="form-group">
-        <label for="image">Image:</label>
-        <input type="file" class="form-control" id="image" name="image">            
-        @error('image')
+        <label for="images">Image:</label>
+        <input type="file" class="form-control input-width-40" id="images" name="images">            
+        @error('images')
                 <div class="invalid-feedback">{{ $message }}</div>
         @enderror
 
     </div>
 
-    <button type="submit" class="btn btn-primary">Create Customer</button>
+    <button type="submit" class="btn btn-primary mt-4">Create Customer</button>
 </form>
 </x-app-layout>

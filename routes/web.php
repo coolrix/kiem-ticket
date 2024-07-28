@@ -33,4 +33,6 @@ Route::get('/tickets/create', [CustomerController::class, 'create'])->name('cust
 Route::post('/tickets', [CustomerController::class, 'store'])->name('customers.store');
 Route::get('/tickets/overview', [CustomerController::class, 'index'])->middleware(['auth', 'verified'])->name('customers.index');
 
+Route::get('/images/tickets/{image}', [CustomerController::class, 'images']);
+
 require __DIR__.'/auth.php';

@@ -5,8 +5,9 @@
         </h2>
     </x-slot>    
     @if (session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
+        <div class="alert alert-success input-width-40 d-flex align-items-center justify-content-center text-center">
+    
+        <strong class="h4 mt-2 mb-2"> {!! session('success') !!} </strong>
         </div>
     @endif
     @if ($errors->any())
@@ -41,6 +42,6 @@
 
     </div>
 
-    <button type="submit" class="btn btn-primary mt-4">Create Customer</button>
+    <button type="submit" class="btn btn-success mt-4">Create Customer</button>
 </form>
 </x-app-layout>

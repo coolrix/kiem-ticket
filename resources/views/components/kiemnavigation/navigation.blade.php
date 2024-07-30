@@ -11,9 +11,19 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <x-kiemnavigation.nav-link :route="url('/')" :label="__('Home')" :active="request()->is('/')" />
-        <x-kiemnavigation.nav-link :route="route('dashboard')" :label="__('Dashboard')" :active="request()->routeIs('dashboard')" />
         <x-kiemnavigation.nav-link :route="route('customers.create')" :label="__('Add a Ticket')" :active="request()->routeIs('customers.create')" />
+        @if (auth()->check())
+        <x-kiemnavigation.nav-link :route="route('customers.tickets')" :label="__('All Ticket')" :active="request()->routeIs('customers.tickets')" />
+        @endif
       </ul>
+      @if (auth()->check())
+      <form method="POST" class="d-flex" action="{{ route('logout') }}">
+        @csrf
+        <button class="btn btn-success" type="submit">Logout</button>
+      </form>
+      @else
+        <a href="{{ route('login') }}" class="btn btn-success">Login</a>
+      @endif
     </div>
   </div>
 </nav>

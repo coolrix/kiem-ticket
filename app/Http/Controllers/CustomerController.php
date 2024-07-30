@@ -11,6 +11,13 @@ class CustomerController extends Controller
 {
     private $cust;
 
+    /**
+     * Constructor for the class.
+     *
+     * Initializes a new instance of the class and creates a new Customer object.
+     *
+     * @return void
+     */
     public function __construct()
     {
         $this->cust = new Customer();
@@ -26,6 +33,17 @@ class CustomerController extends Controller
         return view('customers.create');
     }
 
+    /**
+     * Store the validated form data and create a new customer.
+     *
+     * the function retrieves the stored file from the tickets directory, 
+     * encodes it as a base64 string, and constructs a success message with
+     * the base64-encoded image.
+     * 
+     * @param Request $request The HTTP request object containing the form data.
+     * @throws \Illuminate\Validation\ValidationException If the form data fails validation.
+     * @return \Illuminate\Http\RedirectResponse The redirect response to the create customer page with a success message and a base64-encoded image.
+     */
     public function store(Request $request)
     {
         // Validate the form data
@@ -40,44 +58,76 @@ class CustomerController extends Controller
         if ($request->hasFile('images')) {
             $image = $request->file('images');
             $filename = $uid . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('uploads'), $filename);
-            //Storage::disk('tickets')->put($filename, file_get_contents($image));
-            //$imageUrl = Storage::disk('tickets')->url($filename);
-
+            Storage::disk('local')->putFileAs('tickets', $image, $filename);
         }
 
         $validatedData['images'] = $filename;
 
         $customer = $this->cust->createCustomer($validatedData);
 
-        return redirect()
-            ->route('customers.create')
-            ->with('success', 'Ticket created successfully. Add another one ('.$imageUrl.')');
-    }
-    public function images($image)
-    {
-        $path = "";
-        $this->middleware('auth');
-        if (Auth::check()) {
-        if(Storage::disk('tickets')->exists($image)) {
-        $filePath = 'tickets/'.$image;
-        $path = storage_path($filePath);
+        $filePath = 'tickets/'.$filename;
         $fileContent = Storage::get($filePath);
         $base64Content = base64_encode($fileContent);
-        $contentType = Storage::disk('tickets')->mimeType($image);
-        header('Content-Type: ' . $contentType); 
-        header('Content-Length: ' . strlen($base64Content));
-        header('Content-Disposition: inline; filename="' . $image . '"');             
-        echo base64_decode($base64Content);
-        }
-        else
-        {
-            return response()->json(['message' => 'File not found'], 404);
-        }
+        $contentType = Storage::disk('tickets')->mimeType($filename);
+
+        return redirect()
+            ->route('customers.create')
+            ->with('success', 'Ticket created successfully.<br><img class="mt-2 mb-2" style="height:150px;" src="data:'.$contentType.';base64,'.$base64Content.'" alt="Base64 Image"><br> Add another one.');
+    }
+
+
+    /**
+     * Retrieves an image from the 'tickets' disk and returns it as a base64-encoded string.
+     *
+     * @param string $image The name of the image file.
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException If the image file does not exist.
+     * @return \Illuminate\Http\Response The HTTP response containing the base64-encoded image.
+     */
+    public function images($image)
+    {
+        if (Auth::check()) {
+            if(Storage::disk('tickets')->exists($image)) {
+            $filePath = 'tickets/'.$image;
+            $fileContent = Storage::get($filePath);
+            $base64Content = base64_encode($fileContent);
+            $contentType = Storage::disk('tickets')->mimeType($image);
+            header('Content-Type: ' . $contentType); 
+            header('Content-Length: ' . strlen(base64_decode($base64Content)));
+            header('Content-Disposition: inline; filename="' . $image . '"');             
+            echo base64_decode($base64Content);
+            }
+            else
+            {
+                return response()->json(['message' => 'File not found'], 404);
+            }
         }
         else
         {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
+    }
+    public function images2($image)
+    {
+        if (Auth::check()) {
+            if(Storage::disk('tickets')->exists($image)) {
+                $filePath = 'tickets/'.$image;
+                $fileContent = Storage::get($filePath);
+                $base64Content = base64_encode($fileContent);
+                $contentType = Storage::disk('tickets')->mimeType($image);
+                
+                // Return the base64-encoded image as a data URI
+                return "data:$contentType;base64,$base64Content";
+            } else {
+                return response()->json(['message' => 'File not found'], 404);
+            }
+        } else {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+    }
+    
+    public function tickets()
+    {
+        $tickets = $this->cust->getCustomers();
+        return view('customers.tickets', compact('tickets'));
     }
 }

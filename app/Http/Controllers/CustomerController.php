@@ -75,6 +75,43 @@ class CustomerController extends Controller
             ->with('success', 'Ticket created successfully.<br><img class="mt-2 mb-2" style="height:150px;" src="data:'.$contentType.';base64,'.$base64Content.'" alt="Base64 Image"><br> Add another one.');
     }
 
+    
+    public function update(Request $request)
+    {
+        // Validate the form data
+        $validatedData = $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'images' => 'file|mimes:png,jpg,pdf|max:2048'
+        ]);
+
+       $uid =  uniqid();
+
+        if ($request->hasFile('images')) {
+            $image = $request->file('images');
+            $filename = $uid . '.' . $image->getClientOriginalExtension();
+            Storage::disk('local')->putFileAs('tickets', $image, $filename);
+            $validatedData['images'] = $filename;
+        }
+        else
+        {
+            unset($validatedData['image']);
+        }
+
+        
+
+        $customer = $this->cust->updateCustomer($validatedData, $id);
+
+        $filePath = 'tickets/'.$filename;
+        $fileContent = Storage::get($filePath);
+        $base64Content = base64_encode($fileContent);
+        $contentType = Storage::disk('tickets')->mimeType($filename);
+
+        return redirect()
+            ->route('customers.create')
+            ->with('success', 'Ticket created successfully.<br><img class="mt-2 mb-2" style="height:150px;" src="data:'.$contentType.';base64,'.$base64Content.'" alt="Base64 Image"><br> Add another one.');
+    }
+
 
     /**
      * Retrieves an image from the 'tickets' disk and returns it as a base64-encoded string.

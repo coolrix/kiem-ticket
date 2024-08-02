@@ -12,9 +12,9 @@ class CustomerController extends Controller
     private $cust;
 
     /**
-     * Constructor for the class.
+     * Constructor voor de class.
      *
-     * Initializes a new instance of the class and creates a new Customer object.
+     * Initialiseert een nieuwe instantie van de class en creëert een nieuw Customer object.
      *
      * @return void
      */
@@ -22,27 +22,33 @@ class CustomerController extends Controller
     {
         $this->cust = new Customer();
     }
+    /**
+     * Haalt alle klanten op en retourneert de view voor het weergeven van de klanten.
+     *
+     * @return \Illuminate\Contracts\View\View De view voor het weergeven van klanten.
+     */
     public function index()
     {
         $customers = $this->cust->getCustomers();
         return view('customers.index', compact('customers'));
     }
 
+    /**
+     * Maakt een nieuw view aan voor het aanmaken van een klant.
+     *
+     * @return \Illuminate\Contracts\View\View De view voor het aanmaken van een klant.
+     */
     public function create()
     {
         return view('customers.create');
     }
 
+
     /**
-     * Store the validated form data and create a new customer.
+     * Slaat een nieuwe klant op in de database met een bijgevoegde afbeelding.
      *
-     * the function retrieves the stored file from the tickets directory, 
-     * encodes it as a base64 string, and constructs a success message with
-     * the base64-encoded image.
-     * 
-     * @param Request $request The HTTP request object containing the form data.
-     * @throws \Illuminate\Validation\ValidationException If the form data fails validation.
-     * @return \Illuminate\Http\RedirectResponse The redirect response to the create customer page with a success message and a base64-encoded image.
+     * @param Request $request Het HTTP request object dat de klantgegevens en de afbeeldingsbestand bevat.
+     * @return \Illuminate\Http\RedirectResponse Redirect terug naar de customer creation met een succesbericht en een preview van de bijgevoegde afbeelding.
      */
     public function store(Request $request)
     {
@@ -76,6 +82,12 @@ class CustomerController extends Controller
     }
 
     
+    /**
+     * Werk een klant in de database bij met een bijgevoegde afbeelding.
+     *
+     * @param Request $request Het HTTP request object dat de klantgegevens en de afbeeldingsbestand bevat.
+     * @return \Illuminate\Http\RedirectResponse Redirect naar de pagina customer tickets met een succesbericht en een preview van de bijgewerkte afbeelding.
+     */
     public function update(Request $request)
     {
         // Validate the form data
@@ -112,17 +124,16 @@ class CustomerController extends Controller
             ->route('customers.tickets')
             ->with('success', $success)
             ->with('script', $script);
-
-        //return response()->json(['success' =>  $success]);
     }
 
 
+
     /**
-     * Retrieves an image from the 'tickets' disk and returns it as a base64-encoded string.
+     * Haalt een afbeelding op uit het 'tickets'-folder en retourneert deze als een base64-gecodeerde tekenreeks.
      *
-     * @param string $image The name of the image file.
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException If the image file does not exist.
-     * @return \Illuminate\Http\Response The HTTP response containing the base64-encoded image.
+     * @param string $image De naam van het afbeeldingsbestand.
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException Als het afbeeldingsbestand niet bestaat.
+     * @return \Illuminate\Http\Response De HTTP-respons met de base64-gecodeerde afbeelding.
      */
     public function images($image)
     {
@@ -147,6 +158,13 @@ class CustomerController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
     }
+    /**
+     * Haalt een afbeelding op uit het 'tickets'-folder en retourneert deze als een base64-gecodeerde tekenreeks.
+     *
+     * @param string $image De naam van het afbeeldingsbestand.
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException Als het afbeeldingsbestand niet bestaat.
+     * @return \Illuminate\Http\JsonResponse De HTTP-respons met de base64-gecodeerde afbeelding als een data URI, of een JSON-respons met een 'message'-key die aangeeft dat het bestand niet gevonden is of de gebruiker niet geautoriseerd is.
+     */
     public function images2($image)
     {
         if (Auth::check()) {
@@ -166,6 +184,11 @@ class CustomerController extends Controller
         }
     }
     
+    /**
+     * Haalt alle tickets op uit de database en rendert de view 'customers.tickets' met de lijst van tickets.
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View De gerenderde view met de lijst van tickets.
+     */
     public function tickets()
     {
         $tickets = $this->cust->getCustomers();

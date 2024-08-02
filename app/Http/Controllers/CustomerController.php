@@ -103,9 +103,13 @@ class CustomerController extends Controller
             console.log(index, page);
             table.setPage(page);';
         if ($request->hasFile('images')) {
-            $uid =  $this->cust->getCustomerById($validatedData['id'])->images;
+            $uid =  uniqid();
+
+            $old_uid =  $this->cust->getCustomerById($validatedData['id'])->images;
+            Storage::disk('local')->delete('tickets/' . $old_uid);
+
             $image = $request->file('images');
-            $filename = $uid;
+            $filename = $uid . '.' . $image->getClientOriginalExtension();
             Storage::disk('local')->putFileAs('tickets', $image, $filename);
             $validatedData['images'] = $filename;
 
@@ -140,13 +144,21 @@ class CustomerController extends Controller
         if (Auth::check()) {
             if(Storage::disk('tickets')->exists($image)) {
             $filePath = 'tickets/'.$image;
-            $fileContent = Storage::get($filePath);
-            $base64Content = base64_encode($fileContent);
             $contentType = Storage::disk('tickets')->mimeType($image);
-            header('Content-Type: ' . $contentType); 
-            header('Content-Length: ' . strlen(base64_decode($base64Content)));
-            header('Content-Disposition: inline; filename="' . $image . '"');             
-            echo base64_decode($base64Content);
+            $fileContent = Storage::get($filePath);
+            if (strpos($contentType, 'pdf') !== false) {
+                header('Content-Type: ' . $contentType);
+                header('Content-Length: ' . strlen($fileContent));
+                header('Content-Disposition: inline; filename="' . $image . '"');
+                echo $fileContent;
+            } else
+            {
+                $base64Content = base64_encode($fileContent);
+                header('Content-Type: ' . $contentType); 
+                header('Content-Length: ' . strlen(base64_decode($base64Content)));
+                header('Content-Disposition: inline; filename="' . $image . '"');             
+                echo base64_decode($base64Content);
+            }
             }
             else
             {

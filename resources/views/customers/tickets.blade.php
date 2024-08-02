@@ -1,7 +1,7 @@
 <x-app-layout>
 <x-slot name="header">
     <h2 class="font-semibold text-xl text-gray-800 leading-tight">  
-        {{ __('Overview Tickets') }}
+        {{ __('Overzicht Ticketten') }}
     </h2>
 </x-slot> 
 <script src="{{ asset('js/luxon.js') }}"></script> 
@@ -45,13 +45,22 @@ var rowPopupFormatter = function (e, row, onRendered) {
   var container = document.createElement("div");
   container.classList.add("popup-container");
   var data = row.getData();
-  contents = "<ul class='row-popup ml-2'>";
-  contents += "<li><strong>Naam:</strong> " + data.name + "</li>";
-  contents += "<li><strong>E-mail:</strong> " + data.email + "</li>";
-  contents += "<li><strong>Afbeelding:</strong> " + data.images + "</li>";
-  contents += "<li><img class='mt-4' style='height:300px;' src='http://127.0.0.1:8000/images/tickets/" + data.images + "' alt='Image'></li>";
-  contents += "</ul>";
-  container.innerHTML = contents;
+  contents = `<ul class='row-popup ml-2'>
+  <li><strong>Naam:</strong> ${data.name}</li>
+  <li><strong>E-mail:</strong> ${data.email}</li>
+  <li><strong>Afbeelding:</strong> ${data.images}</li>`;
+  s = '';
+  if (data.images.includes('.pdf')) {
+    s = `<li><iframe src='{{ url('/') }}/images/tickets/${data.images}' width='100%' height='300px'></iframe></li>
+    </ul>`;  
+  }
+  else {
+    s = `<li><img class='mt-4' style='height:300px;' src='{{ url('/') }}/images/tickets/${data.images}' alt='Image'></li>
+     </ul>`;  
+  }
+  
+ 
+  container.innerHTML = contents + s;
 
   return container;
 }
@@ -68,24 +77,24 @@ content = `<form method="POST" action="{{ route('customers.update') }}" enctype=
     @csrf
     <input type="hidden" class="form-control" id="id" name="id" value="${data.id}" required>
     <div class="form-group">
-        <label for="name">Name:</label>
+        <label for="name">Naam:</label>
         <input type="text" class="form-control" id="name" name="name" value="${data.name}" required>
     </div>
 
     <div class="form-group">
-        <label for="email">Email:</label>
+        <label for="email">E-mail:</label>
         <input type="email" class="form-control" id="email" name="email" value="${data.email}" required>
     </div>
 
     <div class="form-group">
-        <label for="images">Image:</label>
+        <label for="images">Afbeelding:</label>
         <input type="file" class="form-control" id="images" name="images">            
         @error('images')
                 <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
 
-    <button type="submit" class="btn btn-success mt-4">Update</button>
+    <button type="submit" class="btn btn-success mt-4">Aanpassen</button>
 </form>`;
 
   container.innerHTML = content;

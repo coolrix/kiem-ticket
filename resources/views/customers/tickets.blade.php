@@ -7,8 +7,28 @@
 <script src="{{ asset('js/luxon.js') }}"></script> 
 <link rel="stylesheet" href="{{ asset('css/tabulator.min.css') }}">
 <script src="{{ asset('js/tabulator.min.js') }}"></script>   
-
+    @if ($errors->any())
+    <div class="alert alert-danger">
+        <ul>
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+    @if (session('success'))
+        <div id="idSuc" class="alert alert-success input-width-40 d-flex align-items-center justify-content-center text-center">
+    
+        <strong class="h4 mt-2 mb-2"> {!! session('success') !!} </strong>
+        </div>
+        <script>
+            setTimeout(function() {
+                document.getElementById("idSuc").remove();
+            }, 2500);
+        </script>
+    @endif
 <div id="tickets-table"></div>
+
 <script>
 function formatDate(value, data, type, params, component) {
   const date = new Date(value);
@@ -31,7 +51,6 @@ var rowPopupFormatter = function (e, row, onRendered) {
   contents += "<li><strong>Afbeelding:</strong> " + data.images + "</li>";
   contents += "<li><img class='mt-4' style='height:300px;' src='http://127.0.0.1:8000/images/tickets/" + data.images + "' alt='Image'></li>";
   contents += "</ul>";
-///images/tickets2/{image}
   container.innerHTML = contents;
 
   return container;
@@ -39,89 +58,37 @@ var rowPopupFormatter = function (e, row, onRendered) {
 
 var rowUpdater = function (e, row, onRendered) {
   var container = document.createElement("div");
-  container.classList.add("popup-update-container", "form-group");
+  
   var data = row.getData();
+  var updatedData = {};  
+  
 
-  var form = document.createElement("form");
-  form.setAttribute("enctype", "multipart/form-data");
-  form.addEventListener("submit", function(event) {
-        event.preventDefault(); 
 
-        // Get the uploaded file
-        const file = document.getElementById("images").files[0];
+content = `<form method="POST" action="{{ route('customers.update') }}" enctype="multipart/form-data">
+    @csrf
+    <input type="hidden" class="form-control" id="id" name="id" value="${data.id}" required>
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" class="form-control" id="name" name="name" value="${data.name}" required>
+    </div>
 
-        // Create a new FormData object
-        const formData = new FormData();
-        formData.append("images", file);
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="email" class="form-control" id="email" name="email" value="${data.email}" required>
+    </div>
 
-        updatedData = {id: data.id, name: document.getElementById("name").value, email: document.getElementById("email").value, images: formData};
-        // Update the data with the uploaded file
-        table.updateData([updatedData])
-            .then(function(){
-            // Run code after data has been updated
-            })
-            .catch(function(error){
-            // Handle error updating data
-            });
-    });
+    <div class="form-group">
+        <label for="images">Image:</label>
+        <input type="file" class="form-control" id="images" name="images">            
+        @error('images')
+                <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
 
-  var nameLabel = document.createElement("label");
-  nameLabel.textContent = "Name";
-  nameLabel.classList.add("mt-2","fw-bold");
-  var nameInput = document.createElement("input");
-  nameInput.type = "text";
-  nameInput.name = "name";
-  nameInput.id = "name";
-  nameInput.value = data.name; // Set the initial value
-  nameInput.classList.add("form-control", "mt-2");
-  nameInput.required = true;
+    <button type="submit" class="btn btn-success mt-4">Update</button>
+</form>`;
 
-  var emailLabel = document.createElement("label");
-  emailLabel.textContent = "Email";
-  emailLabel.classList.add("mt-2","fw-bold");
-  var emailInput = document.createElement("input");
-  emailInput.type = "email";
-  emailInput.name = "email";
-  emailInput.id = "email";
-  emailInput.value = data.email; // Set the initial value
-  emailInput.classList.add("form-control", "mt-2");
-  emailInput.required = true;
-
-  var fileLabel = document.createElement("label");
-  fileLabel.textContent = "Afbeelding";
-  fileLabel.classList.add("mt-2","fw-bold");
-  var fileInput = document.createElement("input");
-  fileInput.type = "file";
-  fileInput.name = "images";
-  fileInput.id = "images";
-  fileInput.classList.add("form-control", "mt-2");
-
-  // Create a separate form-group for each group of label and input elements
-  var nameFormGroup = document.createElement("div");
-  nameFormGroup.classList.add("form-group");
-  nameFormGroup.appendChild(nameLabel);
-  nameFormGroup.appendChild(nameInput);
-  form.appendChild(nameFormGroup);
-
-  var emailFormGroup = document.createElement("div");
-  emailFormGroup.classList.add("form-group");
-  emailFormGroup.appendChild(emailLabel);
-  emailFormGroup.appendChild(emailInput);
-  form.appendChild(emailFormGroup);
-
-  var fileFormGroup = document.createElement("div");
-  fileFormGroup.classList.add("form-group");
-  fileFormGroup.appendChild(fileLabel);
-  fileFormGroup.appendChild(fileInput);
-  form.appendChild(fileFormGroup);
-
-  var submitButton = document.createElement("button");
-  submitButton.type = "submit";
-  submitButton.textContent = "Update";
-  submitButton.classList.add("btn", "btn-success", "mt-2");
-  form.appendChild(submitButton);
-
-  container.appendChild(form);
+  container.innerHTML = content;
   return container;
 };
 var tabledata = {!! json_encode($tickets) !!};
@@ -129,12 +96,10 @@ var table = new Tabulator("#tickets-table", {
     data: tabledata,
     layout: "fitColumns",
     height: "600px",
-    selectableRange:1, //allow only one range at a time
-    //selectableRangeColumns:true,
-    //selectableRangeRows:true,
+    selectableRange:1, 
     selectableRangeClearCells:true,
     placeholderHeaderFilter: "Geen data gevonden",
-    pagination: true, //enable.
+    pagination: true,
     paginationSize: 10,
     paginationSizeSelector: [10, 25, 50, 100, true],
     printAsHtml:true,
@@ -156,14 +121,7 @@ table.on("tableBuilt", function(){
     document.getElementById("print-all-table").addEventListener("click", function(){
       table.print("all", true);
     });
+    {!! session('script') !!}
   });
-
-  /*table.updateData([{id:1, name:"bob"}])
-    .then(function(){
-    
-    })
-    .catch(function(error){
-    
-    });*/
 </script>
 </x-app-layout>

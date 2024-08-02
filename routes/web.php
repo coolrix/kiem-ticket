@@ -33,6 +33,8 @@ Route::get('/tickets/create', [CustomerController::class, 'create'])->name('cust
 Route::post('/tickets', [CustomerController::class, 'store'])->name('customers.store');
 Route::get('/tickets/overview', [CustomerController::class, 'tickets'])->middleware(['auth', 'verified'])->name('customers.tickets');
 
+Route::post('/tickets/update', [CustomerController::class, 'update'])->middleware(['auth', 'verified'])->name('customers.update');
+
 Route::get('/images/tickets/{image}', [CustomerController::class, 'images'])->name('images');
 Route::get('/images/tickets2/{image}', [CustomerController::class, 'images2']);
 

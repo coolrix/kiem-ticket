@@ -80,36 +80,40 @@ class CustomerController extends Controller
     {
         // Validate the form data
         $validatedData = $request->validate([
+            'id' => 'required',
             'name' => 'required',
             'email' => 'required|email',
             'images' => 'file|mimes:png,jpg,pdf|max:2048'
         ]);
-
-       $uid =  uniqid();
-
+        $success = 'Ticket updated successfully.';
+        $script = 'const index = table.getData().findIndex(record => record.id === ' . $validatedData['id'] . ');
+            const page = Math.ceil((index + 1) / table.getPageSize());
+            console.log(index, page);
+            table.setPage(page);';
         if ($request->hasFile('images')) {
+            $uid =  $this->cust->getCustomerById($validatedData['id'])->images;
             $image = $request->file('images');
-            $filename = $uid . '.' . $image->getClientOriginalExtension();
+            $filename = $uid;
             Storage::disk('local')->putFileAs('tickets', $image, $filename);
             $validatedData['images'] = $filename;
+
+            $filePath = 'tickets/'.$filename;
+            $fileContent = Storage::get($filePath);
+            $base64Content = base64_encode($fileContent);
+            $contentType = Storage::disk('tickets')->mimeType($filename);
+            $success = 'Ticket updated successfully.<br><img class="mt-2 mb-2" style="height:150px;" src="data:'.$contentType.';base64,'.$base64Content.'" alt="Base64 Image">';            
         }
         else
         {
-            unset($validatedData['image']);
+            unset($validatedData['images']);
         }
-
-        
-
-        $customer = $this->cust->updateCustomer($validatedData, $id);
-
-        $filePath = 'tickets/'.$filename;
-        $fileContent = Storage::get($filePath);
-        $base64Content = base64_encode($fileContent);
-        $contentType = Storage::disk('tickets')->mimeType($filename);
-
+        $customer = $this->cust->updateCustomer($validatedData, $validatedData['id']);
         return redirect()
-            ->route('customers.create')
-            ->with('success', 'Ticket created successfully.<br><img class="mt-2 mb-2" style="height:150px;" src="data:'.$contentType.';base64,'.$base64Content.'" alt="Base64 Image"><br> Add another one.');
+            ->route('customers.tickets')
+            ->with('success', $success)
+            ->with('script', $script);
+
+        //return response()->json(['success' =>  $success]);
     }
 
 

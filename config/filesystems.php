@@ -55,6 +55,14 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
             'throw' => false,
         ],
+        /*
+    |--------------------------------------------------------------------------
+    | Tickets
+    |--------------------------------------------------------------------------
+    |
+    | Dit is de plaats waar de afbeeldinge en PDFS van de tickets worden opgeslagen.
+    |
+        */
         'tickets' => [
             'driver' => 'local',
             'root' => storage_path('app/tickets'),

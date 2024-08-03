@@ -8,16 +8,13 @@ use Illuminate\View\Component;
 
 class navigation extends Component
 {
-    /**
-     * Create a new component instance.
-     */
     public function __construct()
     {
         //
     }
 
     /**
-     * Get the view / contents that represent the component.
+     * Geeft de view/inhoud weer van de navigation component.
      */
     public function render(): View|Closure|string
     {

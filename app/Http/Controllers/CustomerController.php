@@ -70,23 +70,17 @@ class CustomerController extends Controller
         $validatedData['images'] = $filename;
 
         $customer = $this->cust->createCustomer($validatedData);
-
-        $filePath = 'tickets/'.$filename;
-        $fileContent = Storage::get($filePath);
-        $base64Content = base64_encode($fileContent);
-        $contentType = Storage::disk('tickets')->mimeType($filename);
-
         return redirect()
-            ->route('customers.create')
-            ->with('success', 'Ticket created successfully.<br><img class="mt-2 mb-2" style="height:150px;" src="data:'.$contentType.';base64,'.$base64Content.'" alt="Base64 Image"><br> Add another one.');
+            ->route('customers.create')           
+            ->with('success', 'Ticket created successfully.<br> Add another one.');
     }
 
     
     /**
-     * Werk een klant in de database bij met een bijgevoegde afbeelding.
+     * Werk een klant in de database bij met een bijgevoegde afbeelding of PDF.
      *
-     * @param Request $request Het HTTP request object dat de klantgegevens en de afbeeldingsbestand bevat.
-     * @return \Illuminate\Http\RedirectResponse Redirect naar de pagina customer tickets met een succesbericht en een preview van de bijgewerkte afbeelding.
+     * @param Request $request Het HTTP request object dat de klantgegevens en de afbeeldingsbestand of PDF bevat.
+     * @return \Illuminate\Http\RedirectResponse Redirect naar de pagina customer tickets met een succesbericht en een preview van de bijgewerkte afbeelding of PDF.
      */
     public function update(Request $request)
     {
@@ -112,12 +106,6 @@ class CustomerController extends Controller
             $filename = $uid . '.' . $image->getClientOriginalExtension();
             Storage::disk('local')->putFileAs('tickets', $image, $filename);
             $validatedData['images'] = $filename;
-
-            $filePath = 'tickets/'.$filename;
-            $fileContent = Storage::get($filePath);
-            $base64Content = base64_encode($fileContent);
-            $contentType = Storage::disk('tickets')->mimeType($filename);
-            $success = 'Ticket updated successfully.<br><img class="mt-2 mb-2" style="height:150px;" src="data:'.$contentType.';base64,'.$base64Content.'" alt="Base64 Image">';            
         }
         else
         {
@@ -133,11 +121,12 @@ class CustomerController extends Controller
 
 
     /**
-     * Haalt een afbeelding op uit het 'tickets'-folder en retourneert deze als een base64-gecodeerde tekenreeks.
+     * Haalt een afbeelding of een PDF op uit het 'tickets'-folder en retourneert deze als een base64-gecodeerde tekenreeks
+     * of als een PDF.
      *
-     * @param string $image De naam van het afbeeldingsbestand.
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException Als het afbeeldingsbestand niet bestaat.
-     * @return \Illuminate\Http\Response De HTTP-respons met de base64-gecodeerde afbeelding.
+     * @param string $image De naam van het afbeeldingsbestand of PDF
+     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException Als het afbeeldingsbestand of PDF niet bestaat.
+     * @return \Illuminate\Http\Response De HTTP-respons met de base64-gecodeerde afbeelding of PDF.
      */
     public function images($image)
     {

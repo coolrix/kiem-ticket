@@ -1,9 +1,5 @@
 <x-app-layout>
-<x-slot name="header">
-    <h2 class="font-semibold text-xl text-gray-800 leading-tight">  
-        {{ __('Overzicht Ticketten') }}
-    </h2>
-</x-slot> 
+<x-kiemnavigation.header :title="__('Overzicht Ticketten')" />
 <script src="{{ asset('js/luxon.js') }}"></script> 
 <link rel="stylesheet" href="{{ asset('css/tabulator.min.css') }}">
 <script src="{{ asset('js/tabulator.min.js') }}"></script>   
@@ -27,8 +23,11 @@
             }, 2500);
         </script>
     @endif
-<div id="tickets-table"></div>
-
+<div class="mt-4" id="tickets-table"></div>
+<p class=mt-4>
+  <i><strong>Dubbelklik</strong> op een rij om de gegevens en afbeelding of PDF van het ticket te zien.</i><br>
+  <i><strong>Rechtsklik</strong> op een rij om het ticket aan te passen.</i>
+</p>
 <script>
 function formatDate(value, data, type, params, component) {
   const date = new Date(value);
@@ -104,7 +103,7 @@ var tabledata = {!! json_encode($tickets) !!};
 var table = new Tabulator("#tickets-table", {
     data: tabledata,
     layout: "fitColumns",
-    height: "600px",
+    height: "400px",
     selectableRange:1, 
     selectableRangeClearCells:true,
     placeholderHeaderFilter: "Geen data gevonden",
@@ -113,14 +112,41 @@ var table = new Tabulator("#tickets-table", {
     paginationSizeSelector: [10, 25, 50, 100, true],
     printAsHtml:true,
     printHeader:"<h1>Kiemkracht Tickets<h1>",
-    footerElement:"<button id='print-table' class='btn btn-success'>Afdrukken</button>&nbsp;&nbsp;<button class='btn btn-success' id='print-all-table'>Alles Afdrukken</button>",
+    //footerElement:"<button id='print-table' class='btn btn-success'>Afdrukken</button>&nbsp;&nbsp;<button class='btn btn-success' id='print-all-table'>Alles Afdrukken</button>",
+    footerElement:`<div class="container">
+  <div class="row">
+    <div class="col-sm-2">
+      <button id="print-table" class="btn btn-success mb-2 mt-2">Afdrukken</button>
+    </div>
+    <div class="col-sm-2">
+      <button id="print-all-table" class="btn btn-success mb-2 mt-2">Alles Afdrukken</button>
+    </div>
+  </div>
+</div>`,
     rowDblClickPopup: rowPopupFormatter,
     rowContextPopup: rowUpdater,
+    responsiveLayout: true,
+    locale:"nl-BE",
+    langs:{
+        "nl-BE":{
+            "pagination":{
+                "page_size":"Pagina Grootte", //label for the page size select element
+                "first":"Eerste", //text for the first page button
+                "first_title":"Eerste Pagina", //tooltip text for the first page button
+                "last":"Laatste",
+                "last_title":"Laatste Pagina",
+                "prev":"Vorige",
+                "prev_title":"Vorige Pagina",
+                "next":"Volgende",
+                "next_title":"Volgende Pagina",
+            },
+        }
+    },
     columns:[
-    {title:"Naam", field:"name",resizable: true, headerFilter: "input"},
-    {title:"E-mail", field:"email",resizable: true, headerFilter: "input"},
-    {title:"Afbeelding", field:"images",resizable: true, headerFilter: "input"},
-    {title:"Datum", field:"created_at",resizable: true, headerFilter: "input", mutator: formatDate},
+    {title:"Naam", field:"name",resizable: true, headerFilter: "input", responsive: 0},
+    {title:"E-mail", field:"email",resizable: true, headerFilter: "input", responsive: 1},
+    {title:"Afbeelding", field:"images",resizable: true, headerFilter: "input", responsive: 2},
+    {title:"Datum", field:"created_at",resizable: true, headerFilter: "input", mutator: formatDate , responsive: 3},
     ],
 });
 table.on("tableBuilt", function(){

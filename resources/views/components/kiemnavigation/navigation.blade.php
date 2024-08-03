@@ -11,18 +11,18 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <x-kiemnavigation.nav-link :route="url('/')" :label="__('Home')" :active="request()->is('/')" />
-        <x-kiemnavigation.nav-link :route="route('customers.create')" :label="__('Add a Ticket')" :active="request()->routeIs('customers.create')" />
+        <x-kiemnavigation.nav-link :route="route('customers.create')" :label="__('Ticketten Toevoegen')" :active="request()->routeIs('customers.create')" />
         @if (auth()->check())
-        <x-kiemnavigation.nav-link :route="route('customers.tickets')" :label="__('All Ticket')" :active="request()->routeIs('customers.tickets')" />
+        <x-kiemnavigation.nav-link :route="route('customers.tickets')" :label="__('Overzicht Ticketten')" :active="request()->routeIs('customers.tickets')" />
         @endif
       </ul>
       @if (auth()->check())
       <form method="POST" class="d-flex" action="{{ route('logout') }}">
         @csrf
-        <button class="btn btn-success" type="submit">Logout</button>
+        <button class="btn btn-success" type="submit">Uitloggen</button>
       </form>
       @else
-        <a href="{{ route('login') }}" class="btn btn-success">Login</a>
+        <a href="{{ route('login') }}" class="btn btn-success">Inloggen</a>
       @endif
     </div>
   </div>
